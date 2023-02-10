@@ -20,6 +20,11 @@ BOOKED_TD_RE = re.compile('<td.*?class=".*?booked.*?".*?>')
 SPACES_RE = re.compile('\s+')
 ATTR_RE = re.compile('([^ ]+)="(.*?)"')
 
+def format_seconds(s):
+    minutes = math.floor(s / 60)
+    remaining_seconds = s - minutes * 60
+    return f'{minutes}m {remaining_seconds}s'
+
 def store_init(path, date):
     def get_latest():
         latest, *rest = sorted(
@@ -144,7 +149,7 @@ def run_loop():
 
         minutes = lambda i: i * 60
         wait_seconds = random.randint(minutes(10), minutes(30))
-        print('Wait {} seconds after {}'.format(wait_seconds, datetime.now().strftime('%H:%M')))
+        print('Wait {} after {}'.format(format_seconds(wait_seconds), datetime.now().strftime('%H:%M')))
         time.sleep(wait_seconds)
 
 try:
