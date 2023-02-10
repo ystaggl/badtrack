@@ -4,6 +4,8 @@ import math
 import random
 import re
 import time
+import select
+import sys
 
 import urllib.request
 from xml.etree import ElementTree as ET
@@ -150,7 +152,10 @@ def run_loop():
         minutes = lambda i: i * 60
         wait_seconds = random.randint(minutes(10), minutes(30))
         print('Wait {} after {}'.format(format_seconds(wait_seconds), datetime.now().strftime('%H:%M')))
-        time.sleep(wait_seconds)
+
+        # Wait for input or timeout
+        # https://stackoverflow.com/questions/1335507/keyboard-input-with-timeout
+        select.select([sys.stdin], [], [], wait_seconds)
 
 try:
     run_loop()
