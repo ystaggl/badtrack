@@ -22,11 +22,13 @@ ATTR_RE = re.compile('([^ ]+)="(.*?)"')
 
 def store_init(path, date):
     def get_latest():
-        latest, *rest = reversed([
-            file_name
-            for file_name in os.listdir(path)
-            if file_name.startswith(date.strftime('%Y-%m-%d'))
-        ])
+        latest, *rest = sorted(
+            (
+                file_name
+                for file_name in os.listdir(path)
+                if file_name.startswith(date.strftime('%Y-%m-%d'))
+            ),
+            reverse=True)
 
         with open(os.path.join(path, latest)) as f:
             return f.read().splitlines()
@@ -110,8 +112,8 @@ def check_date(date_to_check):
         if row
     ]
 
-    store['write_list'](booked_list)
     last = store['get_latest']()
+    store['write_list'](booked_list)
 
     diff = [
         '{}: {} -> {}'.format(op, last[astart:aend], booked_list[bstart:bend])
@@ -132,12 +134,12 @@ def check_date(date_to_check):
 def run_loop():
     while True:
         for i in range(7):
-            wait_check_seconds = random.randint(3, 30)
+            wait_check_seconds = random.randint(3, 30) if i > 0 else 0
             time.sleep(wait_check_seconds)
 
             now = datetime.now()
             date = get_datetime(now.year, now.month, now.day + i, now.hour, now.minute)
-            print('Check for {1} (waited {0}s)' .format(wait_check_seconds, date.strftime('%d/%m')))
+            print('Check for {1} (waited {0}s)' .format(wait_check_seconds, date.strftime('%a %d/%m')))
             check_date(date)
 
         minutes = lambda i: i * 60
@@ -145,4 +147,7 @@ def run_loop():
         print('Wait {} seconds after {}'.format(wait_seconds, datetime.now().strftime('%H:%M')))
         time.sleep(wait_seconds)
 
-run_loop()
+try:
+    run_loop()
+except KeyboardInterrupt:
+    print('exit from keyboard interrupt')
