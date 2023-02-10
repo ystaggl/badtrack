@@ -29,13 +29,18 @@ def format_seconds(s):
 
 def store_init(path, date):
     def get_latest():
-        latest, *rest = sorted(
+        file_names = sorted(
             (
                 file_name
                 for file_name in os.listdir(path)
                 if file_name.startswith(date.strftime('%Y-%m-%d'))
             ),
             reverse=True)
+
+        if len(file_names) == 0:
+            return []
+
+        latest, *rest = file_names
 
         with open(os.path.join(path, latest)) as f:
             return f.read().splitlines()
