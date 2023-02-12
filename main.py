@@ -8,6 +8,7 @@ import time
 import select
 import sys
 
+from urllib.error import URLError
 import urllib.request
 from xml.etree import ElementTree as ET
 
@@ -102,7 +103,15 @@ def check_date(date_to_check):
         d = date_to_check
         req = urllib.request.Request(
             f'https://pba.yepbooking.com.au/ajax/ajax.schema.php?day={d.day}&month={d.month}&year={d.year}&id_sport=1')
-        html = urllib.request.urlopen(req).read()
+        try:
+            html = urllib.request.urlopen(req).read()
+        except URLError as e:
+            # Catch:
+            # socket.gaierror: [Errno -5] No address associated with hostname
+            print(e)
+            print('Checking of ' + date_to_check.strftime('%Y-%m-%d') + ' has been skipped')
+            return
+
         set_cache(get_cache_key(date_to_check), html)
 
     cleaned_html = remove_unmatched_tags(remove_html_entities(html.decode()))
