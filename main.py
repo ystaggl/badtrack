@@ -1,6 +1,7 @@
 import difflib
 import os
 import math
+from pprint import pprint
 import random
 import re
 import time
@@ -134,14 +135,7 @@ def check_date(date_to_check):
     ]
 
     if diff:
-        print(diff)
-
-    # difflib.SequenceMatcher(None)
-
-    # import pdb;pdb.set_trace()
-    # root = ET.fromstring(cleaned_html)
-
-    # root.findall('')
+        pprint(diff)
 
 def run_loop():
     while True:
