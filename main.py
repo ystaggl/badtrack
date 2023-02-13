@@ -7,6 +7,7 @@ import re
 import time
 import select
 import sys
+from termios import tcflush, TCIFLUSH
 
 from urllib.error import URLError
 import urllib.request
@@ -159,6 +160,12 @@ def run_loop():
         minutes = lambda i: i * 60
         wait_seconds = random.randint(minutes(10), minutes(30))
         print('Wait {} after {}'.format(format_seconds(wait_seconds), datetime.now().strftime('%H:%M')))
+
+        # sys.stdin will already start receiving keystrokes at the beginning of the programme
+        # so an accidental Enter key press at the beginning of the programme will make the following
+        # select.select code receive the keystroke skipping the while loop potentially multiple times
+        # https://stackoverflow.com/questions/55525716/python-input-takes-old-stdin-before-input-is-called
+        tcflush(sys.stdin, TCIFLUSH)
 
         # Wait for input or timeout
         # https://stackoverflow.com/questions/1335507/keyboard-input-with-timeout
