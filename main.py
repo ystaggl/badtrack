@@ -29,7 +29,7 @@ def format_seconds(s):
     remaining_seconds = s - minutes * 60
     return f'{minutes}m {remaining_seconds}s'
 
-def store_init(path, date):
+def store_init(path, now, date):
     def get_latest():
         file_names = sorted(
             (
@@ -49,7 +49,7 @@ def store_init(path, date):
 
     def write_list(l):
         content = '\n'.join(l)
-        with open(os.path.join(path, date.strftime('%Y-%m-%d_%H%M') + '.txt'), 'w') as f:
+        with open(os.path.join(path, date.strftime('%Y-%m-%d') + '_at_' + now.strftime('%Y-%m-%d_%H:%M') + '.txt'), 'w') as f:
             f.write(content)
 
     return {
@@ -93,9 +93,7 @@ def set_cache(key, content):
 def tag_to_dic(tag):
     return dict(ATTR_RE.findall(tag.lstrip('<td').rstrip('>').strip()))
 
-def check_date(date_to_check):
-    store = store_init('history/', date_to_check)
-
+def check_date(store, date_to_check):
     html = get_cache(get_cache_key(date_to_check))
     html = None
 
@@ -154,8 +152,9 @@ def run_loop():
 
             now = datetime.now()
             date = get_datetime(now.year, now.month, now.day + i, now.hour, now.minute)
-            print('Check for {1} (waited {0}s)' .format(wait_check_seconds, date.strftime('%a %d/%m')))
-            check_date(date)
+            print('{2} Check for {1} (waited {0}s)' .format(wait_check_seconds, date.strftime('%a %d/%m'), now.strftime('%H:%M')))
+            store = store_init('history/', now, date)
+            check_date(store, date)
 
         minutes = lambda i: i * 60
         wait_seconds = random.randint(minutes(10), minutes(30))
