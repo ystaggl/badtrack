@@ -1,3 +1,4 @@
+from calendar import monthrange
 import difflib
 import os
 import math
@@ -13,7 +14,7 @@ from urllib.error import URLError
 import urllib.request
 from xml.etree import ElementTree as ET
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -68,13 +69,11 @@ def remove_unmatched_tags(s):
     return s.replace('<div class="divHour">', '')
 
 def get_datetime(year, month, day, *args):
-    try:
-        return datetime(year, month, day, *args)
-    except ValueError:
-        try:
-            return datetime(year, month + 1, 1, *args)
-        except ValueError:
-            return datetime(year + 1, 1, 1, *args)
+    return datetime(year, month, 1, *args) + timedelta(day - 1)
+
+assert get_datetime(2023, 2, 29) == datetime(2023, 3, 1)
+assert get_datetime(2023, 2, 30) == datetime(2023, 3, 2)
+assert get_datetime(2023, 12, 33) == datetime(2024, 1, 2)
 
 def get_cache_key(d):
     return d.strftime('%Y-%m-%d')
@@ -171,7 +170,8 @@ def run_loop():
         # https://stackoverflow.com/questions/1335507/keyboard-input-with-timeout
         select.select([sys.stdin], [], [], wait_seconds)
 
-try:
-    run_loop()
-except KeyboardInterrupt:
-    print('exit from keyboard interrupt')
+if __name__ == '__main__':
+    try:
+        run_loop()
+    except KeyboardInterrupt:
+        print('exit from keyboard interrupt')
