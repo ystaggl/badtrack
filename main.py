@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from calendar import monthrange
 import difflib
 import os
