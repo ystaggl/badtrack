@@ -2,7 +2,7 @@
 
 # Check if APP_PATH environment variable is set; if not, default to /home/username/Desktop/robinBadTrack/
 if [ -z "$APP_PATH" ]; then
-  APP_PATH="/home/$(whoami)/Desktop/robinBadTrack/"
+  APP_PATH="/home/$(whoami)/Desktop/robinBadTrack"
 fi
 
 # Create the directory if it doesn't exist
@@ -47,7 +47,7 @@ After=network.target
 Type=simple
 User=$(whoami)
 WorkingDirectory=$APP_PATH
-ExecStart=/usr/bin/python3 $APP_PATH/main.py  # Run main.py directly
+ExecStart=/usr/bin/python3 $APP_PATH/badtrack/main.py  # Run main.py directly
 
 [Install]
 WantedBy=multi-user.target
