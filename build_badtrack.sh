@@ -14,7 +14,7 @@ mkdir -p "$APP_PATH/badtrack/usr/local/bin"
 mkdir -p "$APP_PATH/badtrack/usr/local/share/badtrack"
 
 # Create the history directory in the current working directory
-mkdir -p history
+mkdir -p "$APP_PATH/history"
 
 # Copy the main.py file to the badtrack directory and make it executable
 cp main.py "$APP_PATH/badtrack/usr/local/bin/badtrack"
