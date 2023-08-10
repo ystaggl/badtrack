@@ -34,19 +34,14 @@ def format_seconds(s):
     return f'{minutes}m {remaining_seconds}s'
 
 def store_init(path, now, date):
-    os.makedirs(path, exist_ok=True)
     def get_latest():
-        try:
-            file_names = sorted(
-                (
-                    file_name
-                    for file_name in os.listdir(path)
-                    if file_name.startswith(date.strftime('%Y-%m-%d'))
-                ),
-                reverse=True)
-        except FileNotFoundError:
-            print(f"Error: Directory {path} not found.")
-            return []
+        file_names = sorted(
+            (
+                file_name
+                for file_name in os.listdir(path)
+                if file_name.startswith(date.strftime('%Y-%m-%d'))
+            ),
+            reverse=True)
 
         if len(file_names) == 0:
             return []
@@ -55,7 +50,7 @@ def store_init(path, now, date):
 
         with open(os.path.join(path, latest)) as f:
             return f.read().splitlines()
-            
+
     def write_list(l):
         content = '\n'.join(l)
         with open(os.path.join(path, date.strftime('%Y-%m-%d') + '_at_' + now.strftime('%Y-%m-%d_%H:%M') + '.txt'), 'w') as f:
@@ -160,12 +155,7 @@ def run_loop():
             now = datetime.now()
             date = get_datetime(now.year, now.month, now.day + i, now.hour, now.minute)
             print('{2} Check for {1} (waited {0}s)' .format(wait_check_seconds, date.strftime('%a %d/%m'), now.strftime('%H:%M')))
-            # Get the directory where the script is located
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            # Construct the absolute path to badtrack/history/
-            history_path = '/var/lib/badtrack/history/'
-            # Pass the absolute path to store_init
-            store = store_init(history_path, now, date)
+            store = store_init('history/', now, date)
             check_date(store, date)
 
         minutes = lambda i: i * 60
