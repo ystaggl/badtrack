@@ -6,6 +6,7 @@ import os
 import math
 from pprint import pprint
 import random
+import os
 import re
 import time
 import select
@@ -146,7 +147,7 @@ def check_date(store, date_to_check):
     if diff:
         pprint(diff)
 
-def run_loop():
+def run_loop(history_folder):
     while True:
         for i in range(7):
             wait_check_seconds = random.randint(3, 30) if i > 0 else 0
@@ -155,7 +156,7 @@ def run_loop():
             now = datetime.now()
             date = get_datetime(now.year, now.month, now.day + i, now.hour, now.minute)
             print('{2} Check for {1} (waited {0}s)' .format(wait_check_seconds, date.strftime('%a %d/%m'), now.strftime('%H:%M')))
-            store = store_init('history/', now, date)
+            store = store_init(history_folder, now, date)
             check_date(store, date)
 
         minutes = lambda i: i * 60
@@ -174,6 +175,6 @@ def run_loop():
 
 if __name__ == '__main__':
     try:
-        run_loop()
+        run_loop(os.environ['HISTORY_FOLDER'])
     except KeyboardInterrupt:
         print('exit from keyboard interrupt')
