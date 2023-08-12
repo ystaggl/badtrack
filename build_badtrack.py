@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import shutil
 import subprocess
@@ -26,7 +28,8 @@ Architecture: all
 Essential: no
 Installed-Size: 1024
 Maintainer: Your Name <your-email@example.com>
-Description: Badtrack is a sample package"""
+Description: Badtrack is a sample package
+"""
 with open(f"{APP_PATH}/badtrack/DEBIAN/control", 'w') as file:
     file.write(control_content)
 
