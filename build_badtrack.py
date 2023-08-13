@@ -22,7 +22,7 @@ os.makedirs(f"{APP_PATH}/badtrack/var/lib/badtrack/cache", exist_ok=True)
 shutil.copy('main.py', f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py")
 os.chmod(f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py", 0o755)
 
-# Set perissions for environment variable folders
+# Set perissions for environment variable folders. Subprocess.run allows recursive chmod where os.chmod doesn't seem to.
 subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/history"])
 subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/cache"])
 
