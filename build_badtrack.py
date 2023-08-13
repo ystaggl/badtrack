@@ -15,10 +15,16 @@ CACHE_FOLDER = "/var/lib/badtrack/cache"
 os.makedirs(f"{APP_PATH}/badtrack/DEBIAN", exist_ok=True)
 os.makedirs(f"{APP_PATH}/badtrack/usr/local/bin/badtrack", exist_ok=True)
 os.makedirs(f"{APP_PATH}/badtrack/etc/systemd/system", exist_ok=True)
+os.makedirs(f"{APP_PATH}/badtrack/var/lib/badtrack/history", exist_ok=True)
+os.makedirs(f"{APP_PATH}/badtrack/var/lib/badtrack/cache", exist_ok=True)
 
 # Copy the main.py file to the badtrack directory and make it executable
 shutil.copy('main.py', f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py")
 os.chmod(f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py", 0o755)
+
+# Set perissions for environment variable folders
+subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/history"])
+subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/cache"])
 
 # Create the control file
 control_content = """Package: badtrack
@@ -57,26 +63,12 @@ with open(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 'w') as fi
 os.chmod(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 0o644)
 
 
-def add_environment_variable(path):
-    #create folder for environment variable and set it's permissions
-    path = f"{APP_PATH}/badtrack{path}"
-    # Create the folder if it doesn't exist
-    os.makedirs(path, exist_ok=True)
-    # Change permissions of the folder
-    subprocess.run(["chmod", "--recursive", "755", path]) #I don't like mixing subprocess.run with os.chmod, but this is the easiest way to make it recursive
-    return
-
-add_environment_variable(HISTORY_FOLDER)
-add_environment_variable(CACHE_FOLDER)
-
 # Create the post-installation script
 postinst_content = f"""#!/bin/bash
 getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrackuser
 # Set ownership of folders to badtrackuser
 chown -R badtrackuser:badtrackuser \"{HISTORY_FOLDER}\"
 chown -R badtrackuser:badtrackuser \"{CACHE_FOLDER}\"
-systemctl stop badtrack
-systemctl daemon-reload
 systemctl enable badtrack
 systemctl start badtrack
 """
