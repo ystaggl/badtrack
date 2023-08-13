@@ -90,7 +90,7 @@ def get_cache(key):
         return None
 
 def set_cache(key, content):
-    cache_file_path = os.path.join(os.environ['HISTORY_FOLDER'], key)
+    cache_file_path = os.path.join(os.environ['CACHE_FOLDER'], key)
     with open(cache_file_path, 'wb') as f:
         f.write(content)
 
