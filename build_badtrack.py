@@ -26,8 +26,9 @@ os.chmod(f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py", 0o755)
 subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/history"])
 subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/cache"])
 
-# Create the control file
-control_content = """Package: badtrack
+# Create the control fi le
+control_content = """\
+Package: badtrack
 Version: 1.0.0
 Section: custom
 Priority: optional
@@ -55,29 +56,28 @@ Environment=HISTORY_FOLDER={HISTORY_FOLDER}
 Environment=CACHE_FOLDER={CACHE_FOLDER}
 
 [Install]
-WantedBy=multi-user.target"""
+WantedBy=multi-user.target
+"""
 with open(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 'w') as file:
     file.write(service_content)
 
 # Changing the permissions of the badtrack.service file
 os.chmod(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 0o644)
 
-
 # Create the post-installation script
-postinst_content = f"""#!/bin/bash
+postinst_content = f"""\
+#!/bin/bash
 getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrackuser
 # Set ownership of folders to badtrackuser
 chown -R badtrackuser:badtrackuser \"{HISTORY_FOLDER}\"
 chown -R badtrackuser:badtrackuser \"{CACHE_FOLDER}\"
-systemctl stop badtrack
-systemctl daemon-reload
 systemctl enable badtrack
-systemctl start badtrack
+systemctl restart badtrack
+systemctl daemon-reload
 """
 
 with open(f"{APP_PATH}/badtrack/DEBIAN/postinst", 'w') as file:
     file.write(postinst_content)
-
 
 # Make the post-installation script executable
 os.chmod(f"{APP_PATH}/badtrack/DEBIAN/postinst", 0o755)
