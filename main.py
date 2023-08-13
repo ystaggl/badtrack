@@ -90,7 +90,8 @@ def get_cache(key):
         return None
 
 def set_cache(key, content):
-    with open(key, 'wb') as f:
+    cache_file_path = os.path.join(os.environ['HISTORY_FOLDER'], key)
+    with open(cache_file_path, 'wb') as f:
         f.write(content)
 
 def tag_to_dic(tag):

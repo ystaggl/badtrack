@@ -5,10 +5,13 @@ import shutil
 import subprocess
 
 # Get the current working directory
-APP_PATH = os.getcwd()
+APP_PATH = os.path.abspath(os.path.dirname(__file__))
 
 # Fixed path for the history folder
 HISTORY_FOLDER = "/var/lib/badtrack/history"
+
+# Creating the badtrackuser user
+subprocess.run(['sudo', 'useradd', '-r', '-s', '/bin/false', 'badtrackuser'], check=True)
 
 # Create the badtrack directory structure
 os.makedirs(f"{APP_PATH}/badtrack/DEBIAN", exist_ok=True)
@@ -34,13 +37,14 @@ with open(f"{APP_PATH}/badtrack/DEBIAN/control", 'w') as file:
     file.write(control_content)
 
 # Create the systemd service file within the package
-service_content = f"""[Unit]
+service_content = f"""\
+[Unit]
 Description=BadTrack Service
 After=network.target
 
 [Service]
 Type=simple
-User=root
+User=badtrackuser
 WorkingDirectory=/usr/local/bin/badtrack
 ExecStart=/usr/bin/python3 /usr/local/bin/badtrack/main.py
 Environment=HISTORY_FOLDER={HISTORY_FOLDER}
@@ -50,15 +54,23 @@ WantedBy=multi-user.target"""
 with open(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 'w') as file:
     file.write(service_content)
 
+# Changing the permissions of the badtrack.service file
+subprocess.run(['sudo', 'chmod', '644', f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service"], check=True)
+
 # Create the post-installation script
 postinst_content = f"""#!/bin/bash
+# Creating the HISTORY_FOLDER if it doesn't exist
 mkdir -p \"{HISTORY_FOLDER}\"
-chmod 644 /etc/systemd/system/badtrack.service
+# Changing the ownership of the HISTORY_FOLDER to badtrackuser
+chown -R badtrackuser:badtrackuser \"{HISTORY_FOLDER}\"
+# Changing the permissions of the HISTORY_FOLDER
+chmod -R 755 \"{HISTORY_FOLDER}\"
 systemctl daemon-reload
 systemctl enable badtrack
 systemctl start badtrack"""
 with open(f"{APP_PATH}/badtrack/DEBIAN/postinst", 'w') as file:
     file.write(postinst_content)
+
 
 # Make the post-installation script executable
 os.chmod(f"{APP_PATH}/badtrack/DEBIAN/postinst", 0o755)
