@@ -69,6 +69,8 @@ getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrack
 # Set ownership of folders to badtrackuser
 chown -R badtrackuser:badtrackuser \"{HISTORY_FOLDER}\"
 chown -R badtrackuser:badtrackuser \"{CACHE_FOLDER}\"
+systemctl stop badtrack
+systemctl daemon-reload
 systemctl enable badtrack
 systemctl start badtrack
 """
