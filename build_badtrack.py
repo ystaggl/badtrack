@@ -58,27 +58,28 @@ with open(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 'w') as fi
 # Changing the permissions of the badtrack.service file
 os.chmod(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 0o644)
 
+
+def add_environment_variable(path):
+    return f"""\
+    # Creating the folder if it doesn't exist
+    mkdir -p \"{path}\"
+    # Changing ownership of the folder to badtrackuser
+    chown -R badtrackuser:badtrackuser \"{path}\"
+    # Changing permissions of the folder
+    chmod -R 755 \"{path}\"
+    """
+
 # Create the post-installation script
 postinst_content = f"""#!/bin/bash
 getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrackuser
-#
-# Creating the HISTORY_FOLDER if it doesn't exist
-mkdir -p \"{HISTORY_FOLDER}\"
-# Changing the ownership of the HISTORY_FOLDER to badtrackuser
-chown -R badtrackuser:badtrackuser \"{HISTORY_FOLDER}\"
-# Changing the permissions of the HISTORY_FOLDER
-chmod -R 755 \"{HISTORY_FOLDER}\"
-#
-#Creating the CACHE_FOLDER if it doesn't exist
-mkdir -p \"{CACHE_FOLDER}\"
-# Changing the ownership of the CACHE_FOLDER to badtrackuser
-chown -R badtrackuser:badtrackuser \"{CACHE_FOLDER}\"
-#Changing the permissions of the CACHE_FOLDER
-chmod -R 755 \"{CACHE_FOLDER}\"
-#
+{add_environment_variable(HISTORY_FOLDER)}
+{add_environment_variable(CACHE_FOLDER)}
 systemctl daemon-reload
 systemctl enable badtrack
-systemctl start badtrack"""
+systemctl start badtrack
+"""
+
+print(postinst_content)
 with open(f"{APP_PATH}/badtrack/DEBIAN/postinst", 'w') as file:
     file.write(postinst_content)
 
