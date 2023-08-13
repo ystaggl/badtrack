@@ -10,9 +10,6 @@ APP_PATH = os.path.abspath(os.path.dirname(__file__))
 # Fixed path for the history folder
 HISTORY_FOLDER = "/var/lib/badtrack/history"
 
-# Creating the badtrackuser user
-subprocess.run(['sudo', 'useradd', '-r', '-s', '/bin/false', 'badtrackuser'], check=True)
-
 # Create the badtrack directory structure
 os.makedirs(f"{APP_PATH}/badtrack/DEBIAN", exist_ok=True)
 os.makedirs(f"{APP_PATH}/badtrack/usr/local/bin/badtrack", exist_ok=True)
@@ -59,6 +56,7 @@ subprocess.run(['sudo', 'chmod', '644', f"{APP_PATH}/badtrack/etc/systemd/system
 
 # Create the post-installation script
 postinst_content = f"""#!/bin/bash
+getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrackuser
 # Creating the HISTORY_FOLDER if it doesn't exist
 mkdir -p \"{HISTORY_FOLDER}\"
 # Changing the ownership of the HISTORY_FOLDER to badtrackuser
