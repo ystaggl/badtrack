@@ -52,7 +52,7 @@ with open(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 'w') as fi
     file.write(service_content)
 
 # Changing the permissions of the badtrack.service file
-subprocess.run(['sudo', 'chmod', '644', f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service"], check=True)
+os.chmod(f"{APP_PATH}/badtrack/etc/systemd/system/badtrack.service", 0o644)
 
 # Create the post-installation script
 postinst_content = f"""#!/bin/bash
