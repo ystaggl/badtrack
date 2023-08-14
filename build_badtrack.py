@@ -83,8 +83,5 @@ with open(f"{APP_PATH}/badtrack/DEBIAN/postinst", 'w') as file:
 os.chmod(f"{APP_PATH}/badtrack/DEBIAN/postinst", 0o755)
 
 # Build the Debian package
-try:
-    subprocess.run(["dpkg-deb", "--build", f"{APP_PATH}/badtrack"],check=True)
-    print("badtrack.deb package has been created.")
-except subprocess.CalledProcessError:
-    print("package could not be built.")
+subprocess.run(["dpkg-deb", "--build", f"{APP_PATH}/badtrack"],check=True)
+print("badtrack.deb package has been created.")
