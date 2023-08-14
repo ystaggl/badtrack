@@ -83,14 +83,16 @@ def get_cache_key(d):
     return d.strftime('%Y-%m-%d_%H%M')
 
 def get_cache(key):
+    cache_file_path = os.path.join(os.environ['CACHE_FOLDER'], key)
     try:
-        with open(key, 'rb') as f:
+        with open(cache_file_path, 'rb') as f:
             return f.read()
     except FileNotFoundError:
         return None
 
 def set_cache(key, content):
-    with open(key, 'wb') as f:
+    cache_file_path = os.path.join(os.environ['CACHE_FOLDER'], key)
+    with open(cache_file_path, 'wb') as f:
         f.write(content)
 
 def tag_to_dic(tag):
