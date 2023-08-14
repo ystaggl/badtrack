@@ -22,9 +22,9 @@ os.makedirs(f"{APP_PATH}/badtrack/var/lib/badtrack/cache", exist_ok=True)
 shutil.copy('main.py', f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py")
 os.chmod(f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py", 0o755)
 
-# Set perissions for environment variable folders. Subprocess.run allows recursive chmod where os.chmod doesn't seem to.
-subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/history"])
-subprocess.run(["chmod", "--recursive", "755", f"{APP_PATH}/badtrack/var/lib/badtrack/cache"])
+# Set perissions for environment variable folders.
+os.chmod(f"{APP_PATH}/badtrack/var/lib/badtrack/history",0o755)
+os.chmod(f"{APP_PATH}/badtrack/var/lib/badtrack/cache",0o755)
 
 # Create the control fi le
 control_content = """\
@@ -72,8 +72,8 @@ getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrack
 chown -R badtrackuser:badtrackuser \"{HISTORY_FOLDER}\"
 chown -R badtrackuser:badtrackuser \"{CACHE_FOLDER}\"
 systemctl enable badtrack
-systemctl restart badtrack
 systemctl daemon-reload
+systemctl restart badtrack
 """
 
 with open(f"{APP_PATH}/badtrack/DEBIAN/postinst", 'w') as file:
@@ -83,6 +83,8 @@ with open(f"{APP_PATH}/badtrack/DEBIAN/postinst", 'w') as file:
 os.chmod(f"{APP_PATH}/badtrack/DEBIAN/postinst", 0o755)
 
 # Build the Debian package
-subprocess.run(["dpkg-deb", "--build", f"{APP_PATH}/badtrack"])
-
-print("badtrack.deb package has been created.")
+try:
+    subprocess.run(["dpkg-deb", "--build", f"{APP_PATH}/badtrack"],check=True)
+    print("badtrack.deb package has been created.")
+except subprocess.CalledProcessError:
+    print("package could not be built.")
