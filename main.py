@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+#region
 from calendar import monthrange
 import difflib
 import os
@@ -12,6 +12,9 @@ import time
 import select
 import sys
 from termios import tcflush, TCIFLUSH
+import smtplib
+from uuid import uuid4
+
 
 from urllib.error import URLError
 import urllib.request
@@ -33,7 +36,7 @@ def format_seconds(s):
     minutes = math.floor(s / 60)
     remaining_seconds = s - minutes * 60
     return f'{minutes}m {remaining_seconds}s'
-
+#endregion
 def store_init(path, now, date):
     def get_latest():
         file_names = sorted(
@@ -49,6 +52,9 @@ def store_init(path, now, date):
 
         latest, *rest = file_names
 
+        if len(file_names) == 1: #For sending updated details by email.
+            check_updated_entry(file_names)
+
         with open(os.path.join(path, latest)) as f:
             return f.read().splitlines()
 
@@ -61,7 +67,7 @@ def store_init(path, now, date):
         'get_latest': get_latest,
         'write_list': write_list,
     }
-
+#region
 def remove_thead(s):
     return THEAD_RE.sub('', s)
 
@@ -97,7 +103,7 @@ def set_cache(key, content):
 
 def tag_to_dic(tag):
     return dict(ATTR_RE.findall(tag.lstrip('<td').rstrip('>').strip()))
-
+#endregion
 def check_date(store, date_to_check):
     html = get_cache(get_cache_key(date_to_check))
     html = None
@@ -138,6 +144,7 @@ def check_date(store, date_to_check):
     ]
 
     last = store['get_latest']()
+    #print(last)
     store['write_list'](booked_list)
 
     diff = [
@@ -149,6 +156,37 @@ def check_date(store, date_to_check):
     if diff:
         pprint(diff)
 
+def check_updated_entry(file_names):
+    latest, previous, *rest = file_names
+    #with open()
+    return
+
+def send_email(email_body):
+    sent_from = 'sender@obsi.com.au'
+    to = ['robinchew@gmail.com']
+    #TODO: Set a subject
+    subject = 'New booking details'
+    email_text = f"""\
+    Message-ID: <{uuid4()}@obsi.com.au>
+    From: Python SMTP Sender <%s>
+    To: %s
+    Subject: %s
+
+    %s
+    """ % (sent_from, ", ".join(to), subject, email_body)
+    print(email_text)
+    try:
+        smtp_server = smtplib.SMTP('localhost', 1025)
+        smtp_server.ehlo()
+        #smtp_server.login(gmail_user, gmail_password)
+        smtp_server.sendmail(sent_from, to, email_text)
+        smtp_server.close()
+        print ("Email sent successfully!")
+    except Exception as ex:
+        print ("Something went wrong….",ex)
+    return
+
+#region
 def run_loop(history_folder):
     while True:
         for i in range(7):
@@ -177,6 +215,8 @@ def run_loop(history_folder):
 
 if __name__ == '__main__':
     try:
+        send_email("this is my test body")
         run_loop(os.environ['HISTORY_FOLDER'])
     except KeyboardInterrupt:
         print('exit from keyboard interrupt')
+#endregion

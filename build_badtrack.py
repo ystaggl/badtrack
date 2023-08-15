@@ -30,6 +30,7 @@ os.chmod(f"{APP_PATH}/badtrack/var/lib/badtrack/cache",0o755)
 control_content = """\
 Package: badtrack
 Version: 1.0.0
+Depends: python3
 Section: custom
 Priority: optional
 Architecture: all
