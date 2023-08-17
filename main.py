@@ -154,8 +154,7 @@ def check_date(store, date_to_check):
         send_email(diff)
 
 def send_email(diff):
-    email_body = str(diff).replace('–','-').replace('\', \'', '\',\n\'')
-    print(email_body)
+    email_body = str(diff).replace('–','-').replace('\', \'', '\',\n\'') #Changing the dashes is more legible from terminal, can remove that for real emails.
     sent_from = 'sender@obsi.com.au'
     to = ['robinchew@gmail.com']
     gmail_user='mb36340'
@@ -171,10 +170,10 @@ def send_email(diff):
     %s
     """ % (sent_from, ", ".join(to), subject, email_body)
     try:
-        #smtp_server = smtplib.SMTP_SSL('relay.mailbaby.net', 465) #TODO: Uncomment once testing is complete
-        smtp_server = smtplib.SMTP('localhost',1025)
+        smtp_server = smtplib.SMTP_SSL('relay.mailbaby.net', 465)
+        #smtp_server = smtplib.SMTP('localhost',1025) #For testing
         smtp_server.ehlo()
-        #smtp_server.login(gmail_user, gmail_password) #TODO: Enable once testing is complete
+        smtp_server.login(gmail_user, gmail_password)
         smtp_server.sendmail(sent_from, to, email_text)
         smtp_server.close()
         print ("Email sent successfully!")
@@ -211,7 +210,6 @@ def run_loop(history_folder):
 
 if __name__ == '__main__':
     try:
-        #send_email("this is my test body") #TODO: remove testing code.
         run_loop(os.environ['HISTORY_FOLDER'])
     except KeyboardInterrupt:
         print('exit from keyboard interrupt')
