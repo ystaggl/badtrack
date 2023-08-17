@@ -141,7 +141,6 @@ def check_date(store, date_to_check):
     ]
 
     last = store['get_latest']()
-
     store['write_list'](booked_list)
 
     diff = [
@@ -151,6 +150,7 @@ def check_date(store, date_to_check):
     ] #Contains the difference between the current details and the previous history file.
 
     if diff:
+        pprint(diff)
         send_email(diff)
 
 def send_email(diff):
