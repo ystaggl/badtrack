@@ -26,7 +26,7 @@ os.chmod(f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py", 0o755)
 os.chmod(f"{APP_PATH}/badtrack/var/lib/badtrack/history",0o755)
 os.chmod(f"{APP_PATH}/badtrack/var/lib/badtrack/cache",0o755)
 
-# Create the control fi le
+# Create the control file. Reference for dependencies: https://www.debian.org/doc/debian-policy/ch-relationships.html
 control_content = """\
 Package: badtrack
 Version: 1.0.0
@@ -56,7 +56,7 @@ ExecStart=/usr/bin/python3 /usr/local/bin/badtrack/main.py
 Environment=HISTORY_FOLDER={HISTORY_FOLDER}
 Environment=CACHE_FOLDER={CACHE_FOLDER}
 Environment=EMAIL_HOST='relay.mailbaby.net'
-Environment=EMAIL_PORT=465
+Environment=EMAIL_PORT='465'
 Environment=EMAIL_USER='mb36340'
 Environment=EMAIL_PASSWORD=''
 Environment=EMAIL_FROM='sender@obsi.com.au'

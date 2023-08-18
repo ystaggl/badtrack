@@ -152,7 +152,7 @@ def check_date(store, date_to_check):
     if diff:
         pprint(diff)
         send_email(os.environ['EMAIL_HOST'],
-                   os.environ['EMAIL_PORT'],
+                   int(os.environ['EMAIL_PORT']),
                    os.environ['EMAIL_USER'],
                    os.environ['EMAIL_PASSWORD'],
                    os.environ['EMAIL_FROM'],
@@ -161,7 +161,7 @@ def check_date(store, date_to_check):
                    'Updated booking details')
 
 def send_email(email_host, email_port, user, password, email_from, email_to, email_body, email_subject):
-    email_domain = email_from.split('@')[1]
+    _user, email_domain = email_from.split('@', 1)
     email_text = f"""\
     Message-ID: <{uuid4()}@{email_domain}>
     From: Python SMTP Sender <%s>
