@@ -157,7 +157,7 @@ def check_date(store, date_to_check):
                    os.environ['EMAIL_PASSWORD'],
                    os.environ['EMAIL_FROM'],
                    os.environ['EMAIL_TO'],
-                   str(diff).encode('utf-8'), #Encoding is necessary due to the en-dash character.
+                   pprint.pformat(diff).encode('utf-8'), #Encoding is necessary due to the en-dash character.
                    'Updated booking details')
 
 def send_email(email_host, email_port, user, password, email_from, email_to, email_body, email_subject):
