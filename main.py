@@ -151,30 +151,34 @@ def check_date(store, date_to_check):
 
     if diff:
         pprint(diff)
-        send_email(diff)
+        send_email(os.environ['EMAIL_HOST'],
+                   os.environ['EMAIL_PORT'],
+                   os.environ['EMAIL_USER'],
+                   os.environ['EMAIL_PASSWORD'],
+                   os.environ['EMAIL_FROM'],
+                   os.environ['EMAIL_TO'],
+                   str(diff).encode('utf-8'), #Encoding is necessary due to the en-dash character.
+                   'Updated booking details')
 
-def send_email(diff):
-    email_body = str(diff).replace('–','-').replace('\', \'', '\',\n\'') #Changing the dashes is more legible from terminal, can remove that for real emails.
-    sent_from = 'sender@obsi.com.au'
-    to = ['robinchew@gmail.com']
-    gmail_user='mb36340'
-    gmail_password = ''
-
-    subject = 'New booking details'
+def send_email(email_host, email_port, user, password, email_from, email_to, email_body, email_subject):
+    email_domain = email_from.split('@')[1]
     email_text = f"""\
-    Message-ID: <{uuid4()}@obsi.com.au>
+    Message-ID: <{uuid4()}@{email_domain}>
     From: Python SMTP Sender <%s>
     To: %s
     Subject: %s
 
     %s
-    """ % (sent_from, ", ".join(to), subject, email_body)
+    """ % (email_from, email_to, email_subject, email_body)
     try:
-        smtp_server = smtplib.SMTP_SSL('relay.mailbaby.net', 465)
-        #smtp_server = smtplib.SMTP('localhost',1025) #For testing
-        smtp_server.ehlo()
-        smtp_server.login(gmail_user, gmail_password)
-        smtp_server.sendmail(sent_from, to, email_text)
+        if email_host == 465:
+            smtp_server = smtplib.SMTP_SSL(email_host, email_port)
+        else:
+            smtp_server = smtplib.SMTP(email_host,email_port)
+        smtp_server.ehlo()        
+        if user:
+            smtp_server.login(user, password)
+        smtp_server.sendmail(email_from, email_to, email_text)
         smtp_server.close()
         print ("Email sent successfully!")
     except Exception as ex:
