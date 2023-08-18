@@ -55,13 +55,7 @@ WorkingDirectory=/usr/local/bin/badtrack
 ExecStart=/usr/bin/python3 /usr/local/bin/badtrack/main.py
 Environment=HISTORY_FOLDER={HISTORY_FOLDER}
 Environment=CACHE_FOLDER={CACHE_FOLDER}
-Environment=EMAIL_HOST='relay.mailbaby.net'
-Environment=EMAIL_PORT='465'
-Environment=EMAIL_USER='mb36340'
-Environment=EMAIL_PASSWORD=''
-Environment=EMAIL_FROM='sender@obsi.com.au'
-Environment=EMAIL_TO='robinchew@gmail.com'
-
+EnvironmentFile={APP_PATH}/.env
 
 
 [Install]
