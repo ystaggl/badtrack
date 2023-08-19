@@ -17,11 +17,21 @@ Example exclude file:
 .env
 ```
 
-Then execute the build script:
+Next, configure the username/password in badtrack_secrets.py (Hint: Ctrl+F search 'export')
+
+Next, build badtracksecrets:
+
+`python3 ./badtrack_secrets.py`
+
+Then, install it:
+
+`sudo dpkg -i badtracksecrets.deb`
+
+Then build badtrack:
 
 `./build_badtrack.py`
 
-Finally install the package:
+Finally, install badtrack:
 
 `sudo dpkg -i badtrack.deb`
 
