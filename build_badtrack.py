@@ -30,7 +30,7 @@ os.chmod(f"{APP_PATH}/badtrack/var/lib/badtrack/cache",0o755)
 control_content = """\
 Package: badtrack
 Version: 1.0.0
-Depends: python3
+Depends: python3, badtracksecrets
 Section: custom
 Priority: optional
 Architecture: all
@@ -56,6 +56,7 @@ ExecStart=/usr/bin/python3 /usr/local/bin/badtrack/main.py
 Environment=HISTORY_FOLDER={HISTORY_FOLDER}
 Environment=CACHE_FOLDER={CACHE_FOLDER}
 EnvironmentFile={APP_PATH}/.env
+EnvironmentFile=/var/lib/badtrack/secrets.env
 
 
 [Install]
