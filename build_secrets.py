@@ -136,12 +136,8 @@ if __name__ == '__main__':
     parser = custom_argparser()
     parser.required.add_argument('-u',"--USER", help="Email server username", required=True)
     parser.required.add_argument('-p',"--PASSWORD", help="Email server password", required=True)
-
-    # Parse arguments
     args=parser.parse_args()
-    EMAIL_USER = args.USER
-    EMAIL_PASSWORD = args.PASSWORD
-    
+
     # Create secrets.env
     secret_contents = inspect.cleandoc(f"""\
     EMAIL_USER = {args.USER}
