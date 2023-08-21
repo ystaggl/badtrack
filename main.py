@@ -4,7 +4,7 @@ from calendar import monthrange
 import difflib
 import os
 import math
-from pprint import pprint
+from pprint import pprint, pformat
 import random
 import os
 import re
@@ -157,7 +157,7 @@ def check_date(store, date_to_check):
                    os.environ['EMAIL_PASSWORD'],
                    os.environ['EMAIL_FROM'],
                    os.environ['EMAIL_TO'],
-                   str(diff).encode('utf-8'), #Encoding is necessary due to the en-dash character.
+                   pformat(diff).encode('utf-8'), #pprint.pformat collides with pprint.pprint
                    'Updated booking details')
 
 def send_email(email_host, email_port, user, password, email_from, email_to, email_body, email_subject):
