@@ -18,6 +18,19 @@ os.makedirs(f"{APP_PATH}/badtrack/etc/systemd/system", exist_ok=True)
 os.makedirs(f"{APP_PATH}/badtrack/var/lib/badtrack/history", exist_ok=True)
 os.makedirs(f"{APP_PATH}/badtrack/var/lib/badtrack/cache", exist_ok=True)
 
+# Write Environment File
+envfile_text = f"""\
+EMAIL_HOST = 'relay.mailbaby.net'
+EMAIL_PORT = '465'
+EMAIL_FROM ='sender@obsi.com.au'
+EMAIL_TO ='robinchew@gmail.com'
+"""
+with open (f"{APP_PATH}/badtrack/var/lib/badtrack/.env","w+") as envfile:
+    envfile.write(envfile_text)
+
+# Set permissions for envfile
+os.chmod(f"{APP_PATH}/badtrack/var/lib/badtrack/.env", 0o755)
+
 # Copy the main.py file to the badtrack directory and make it executable
 shutil.copy('main.py', f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py")
 os.chmod(f"{APP_PATH}/badtrack/usr/local/bin/badtrack/main.py", 0o755)
@@ -75,6 +88,7 @@ getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrack
 # Set ownership of folders to badtrackuser
 chown -R badtrackuser:badtrackuser \"{HISTORY_FOLDER}\"
 chown -R badtrackuser:badtrackuser \"{CACHE_FOLDER}\"
+chown badtrackuser:badtrackuser \"{APP_PATH}/badtrack/var/lib/badtrack/.env\"
 systemctl enable badtrack
 systemctl daemon-reload
 systemctl restart badtrack

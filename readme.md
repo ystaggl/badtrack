@@ -1,12 +1,7 @@
 
 # Quick setup
 
-First setup environment variables:
-1. Rename .env.example to .env
-2. Replace the variables with real values
-3. Place .env in /var/lib/badtrack/
-
-Next, Build badtracksecrets:
+Build badtracksecrets:
 
 `python3 ./build_secrets.py -u <Email Username> -p <Email Password>`
 
