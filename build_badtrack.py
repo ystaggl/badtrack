@@ -55,7 +55,7 @@ WorkingDirectory=/usr/local/bin/badtrack
 ExecStart=/usr/bin/python3 /usr/local/bin/badtrack/main.py
 Environment=HISTORY_FOLDER={HISTORY_FOLDER}
 Environment=CACHE_FOLDER={CACHE_FOLDER}
-EnvironmentFile={APP_PATH}/.env
+EnvironmentFile=/var/lib/badtrack/.env
 EnvironmentFile=/var/lib/badtrack/secrets.env
 
 
