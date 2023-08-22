@@ -3,16 +3,16 @@
 
 Build badtracksecrets:
 
-`python3 ./build_secrets.py -u <Email Username> -p <Email Password>`
+`EMAIL_USER=\<username> EMAIL_PASSWORD=\<password> ./build_secrets.py
 
 Then, Build badtrack:
 
-`python3 ./build_badtrack.py`
+`./build_badtrack.py`
 
 Then, install badtrack and badtracksecrets:
 
-`sudo dpkg -i badtrack.deb badtracksecrets.deb`
+`dpkg -i badtrack.deb badtracksecrets.deb`
 
 Check that everything is working:
 
-`sudo systemctl status badtrack`
+`systemctl status badtrack`
