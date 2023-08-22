@@ -96,7 +96,7 @@ if __name__ == '__main__':
     EMAIL_HOST = 'relay.mailbaby.net'
     EMAIL_PORT = '465'
     EMAIL_FROM = 'sender@obsi.com.au'
-    EMAIL_TO = 'yannstaggl@gmail.com'
+    EMAIL_TO = 'robinchew@gmail.com'
     """)
 
     # Setup service file
