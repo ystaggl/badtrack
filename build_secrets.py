@@ -3,31 +3,12 @@
 import os
 import subprocess
 import shutil
-from argparse import ArgumentParser, SUPPRESS
 import inspect
-
 
 # Get the current working directory
 APP_PATH = os.path.abspath(os.path.dirname(__file__))
+
 PACKAGE_NAME = "badtracksecrets"
-
-
-def custom_argparser():
-    """
-    Returns a custom argument parser which allows for named arguments to be required
-    """
-    # Get username and password
-    parser = ArgumentParser(add_help=False) # Disable default help
-    parser.required = parser.add_argument_group('required arguments')
-    parser.optional = parser.add_argument_group('optional arguments')
-    parser.optional.add_argument( # Add back help
-        '-h',
-        '--help',
-        action='help',
-        default=SUPPRESS,
-        help='show this help message and exit'
-    )
-    return parser
 
 
 def package_directory(path):
@@ -52,6 +33,9 @@ def package_file(path,contents=None,existing_file=None):
         contents - If a new file is being written, this should be set to the contents of the file
         existing_file - If instead an existing file is being added to the package, this should be the path to that file.
     """
+    if path[0] == "/":
+        path = path[1:]
+
     if contents == None:
         shutil.copy(existing_file, f"{APP_PATH}/{PACKAGE_NAME}/{path}")
         return
@@ -61,7 +45,7 @@ def package_file(path,contents=None,existing_file=None):
     return
 
 
-def create_control_file(
+def format_control_file(
     package=PACKAGE_NAME,
     version='1.0.0',
     depends='',
@@ -73,7 +57,7 @@ def create_control_file(
     maintainer='Your Name <your-email@example.com>',
     description=f'{PACKAGE_NAME} is a sample package'):
         """
-        Creates the control file
+        Formats the control file
         """
 
         control_content = inspect.cleandoc(f"""\
@@ -89,9 +73,7 @@ def create_control_file(
         Description: {description}
         """)
         control_content += "\n"
-        with open(f"{APP_PATH}/{PACKAGE_NAME}/DEBIAN/control", 'w') as file:
-            file.write(control_content)
-        return
+        return control_content
 
 
 def build_package():
@@ -103,59 +85,49 @@ def build_package():
     return
 
 
-class PostInst():
+def clean_login(login):
     """
-    Object to control postinst script
+    Allows login to be specified both with surrounding quotes and without.
     """
-    def __init__(self):
-        self.contents = "#!/bin/bash"
-        return
-
-    def add_commands(self,commands):
-        for command in commands:
-            self.contents += "\n"
-            self.contents += command
-        return
-
-    def write_postinst(self):
-        with open(f"{APP_PATH}/{PACKAGE_NAME}/DEBIAN/postinst", 'w') as file:
-            file.write(self.contents)
-        os.chmod(f"{APP_PATH}/{PACKAGE_NAME}/DEBIAN/postinst", 0o755)
-        return
+    if login[0] != login[-1]:
+        return login
+    return login.strip("\'\"")
 
 
 if __name__ == '__main__':
-    # Create the badtracksecrets directory structure
+    # Setup text files
+
+    # Create the control file
+    control_contents = format_control_file(version="1")
+
+    # Create secrets.env
+    email_user = clean_login(os.environ["EMAIL_USER"])
+    email_password = clean_login(os.environ["EMAIL_PASSWORD"])
+    secret_contents = inspect.cleandoc(f"""\
+    EMAIL_USER = \'{email_user}\'
+    EMAIL_PASSWORD = \'{email_password}\'
+    """)
+
+    # Set owner of secrets.env to badtrackuser
+    postinst_contents = inspect.cleandoc(f"""\
+    #!/bin/bash
+    getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrackuser
+    chown -R badtrackuser:badtrackuser \"/var/lib/badtrack/secrets.env\"
+    """)
+
+
+    # Create directory structure
     package_directory("DEBIAN")
     package_directory("/var/lib/badtrack/")
 
-    # Create the control file
-    create_control_file(version="1")
-
-    # Add argument parser
-    parser = custom_argparser()
-    parser.required.add_argument('-u',"--USER", help="Email server username", required=True)
-    parser.required.add_argument('-p',"--PASSWORD", help="Email server password", required=True)
-    args=parser.parse_args()
-
-    # Create secrets.env
-    secret_contents = inspect.cleandoc(f"""\
-    EMAIL_USER = {args.USER}
-    EMAIL_PASSWORD = {args.PASSWORD}
-    """)
+    # Package files
+    package_file("/DEBIAN/control",contents=control_contents)
+    package_file("/DEBIAN/postinst",contents=postinst_contents)
     package_file("/var/lib/badtrack/secrets.env",contents=secret_contents)
 
-    # Set permissions for secrets.env
+    # Set permissions
+    os.chmod(f"{APP_PATH}/{PACKAGE_NAME}/DEBIAN/postinst", 0o755)
     os.chmod(f'{APP_PATH}/{PACKAGE_NAME}/var/lib/badtrack/secrets.env',0o600)
-
-    # Set owner of secrets.env to badtrackuser
-    postinst = PostInst()
-    postinst_commands = ["getent passwd badtrackuser > /dev/null || sudo useradd -r -s /bin/false badtrackuser",
-                         f"chown -R badtrackuser:badtrackuser \"/var/lib/badtrack/secrets.env\""]
-    postinst.add_commands(postinst_commands)
-
-    # Write postinst
-    postinst.write_postinst()
 
     # Build package
     build_package()
