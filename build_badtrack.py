@@ -92,7 +92,7 @@ if __name__ == '__main__':
     # Setup text files
 
     # Setup environment file
-    envfile_text = inspect.cleandoc(f"""\
+    envfile_content = inspect.cleandoc(f"""\
     EMAIL_HOST = 'relay.mailbaby.net'
     EMAIL_PORT = '465'
     EMAIL_FROM = 'sender@obsi.com.au'
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     # Add files to package
     package_file("/DEBIAN/control",contents=control_content)
     package_file("/DEBIAN/postinst",contents=postinst_content)
-    package_file("/var/lib/badtrack/.env",contents=envfile_text)
+    package_file("/var/lib/badtrack/.env",contents=envfile_content)
     package_file("/etc/systemd/system/badtrack.service",contents=service_content)
     package_file("/usr/local/bin/badtrack/main.py",existing_file="main.py")
 
