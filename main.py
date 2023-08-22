@@ -14,7 +14,7 @@ import sys
 from termios import tcflush, TCIFLUSH
 import smtplib
 from uuid import uuid4
-
+import inspect
 
 from urllib.error import URLError
 import urllib.request
@@ -150,35 +150,34 @@ def check_date(store, date_to_check):
     ] #Contains the difference between the current details and the previous history file.
 
     if diff:
-        pprint(diff)
         send_email(os.environ['EMAIL_HOST'],
                    int(os.environ['EMAIL_PORT']),
                    os.environ['EMAIL_USER'],
                    os.environ['EMAIL_PASSWORD'],
                    os.environ['EMAIL_FROM'],
                    os.environ['EMAIL_TO'],
-                   pformat(diff).encode('utf-8'), #pprint.pformat collides with pprint.pprint
+                   pformat(diff),
                    'Updated booking details')
 
 def send_email(email_host, email_port, user, password, email_from, email_to, email_body, email_subject):
     _user, email_domain = email_from.split('@', 1)
-    email_text = f"""\
+    email_text = inspect.cleandoc(f"""\
     Message-ID: <{uuid4()}@{email_domain}>
     From: Python SMTP Sender <%s>
     To: %s
     Subject: %s
 
     %s
-    """ % (email_from, email_to, email_subject, email_body)
+    """) % (email_from, email_to, email_subject, email_body)
     try:
-        if email_host == 465:
+        if email_port == 465:
             smtp_server = smtplib.SMTP_SSL(email_host, email_port)
         else:
-            smtp_server = smtplib.SMTP(email_host,email_port)
+            smtp_server = smtplib.SMTP(email_host, email_port)
         smtp_server.ehlo()        
         if user:
             smtp_server.login(user, password)
-        smtp_server.sendmail(email_from, email_to, email_text)
+        smtp_server.sendmail(email_from, email_to, email_text.encode('UTF-8'))
         smtp_server.close()
         print ("Email sent successfully!")
     except Exception as ex:
@@ -206,11 +205,11 @@ def run_loop(history_folder):
         # so an accidental Enter key press at the beginning of the programme will make the following
         # select.select code receive the keystroke skipping the while loop potentially multiple times
         # https://stackoverflow.com/questions/55525716/python-input-takes-old-stdin-before-input-is-called
-        tcflush(sys.stdin, TCIFLUSH)
+        #tcflush(sys.stdin, TCIFLUSH)
 
         # Wait for input or timeout
         # https://stackoverflow.com/questions/1335507/keyboard-input-with-timeout
-        select.select([sys.stdin], [], [], wait_seconds)
+        #select.select([sys.stdin], [], [], wait_seconds)
 
 if __name__ == '__main__':
     try:
