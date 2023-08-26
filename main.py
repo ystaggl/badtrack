@@ -175,7 +175,7 @@ def send_email(email_host, email_port, user, password, email_from, email_to, ema
         else:
             smtp_server = smtplib.SMTP(email_host, email_port)
         smtp_server.ehlo()        
-        if user:
+        if email_port == 465:
             smtp_server.login(user, password)
         smtp_server.sendmail(email_from, email_to, email_text.encode('UTF-8'))
         smtp_server.close()
