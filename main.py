@@ -143,21 +143,23 @@ def check_date(store, date_to_check):
     last = store['get_latest']()
     store['write_list'](booked_list)
 
-    diff = [
-        '{}: {} -> {}'.format(op, last[astart:aend], booked_list[bstart:bend])
-        for op, astart, aend, bstart, bend in  difflib.SequenceMatcher(None, last, booked_list).get_opcodes()
-        if op != 'equal'
-    ] #Contains the difference between the current details and the previous history file.
+    deletions = [ # This makes a list where each item is a string containing a booking that has been deleted.
+        entry for group in (last[start:end]
+            for op, start, end, *_b in difflib.SequenceMatcher(None, last, booked_list).get_opcodes() # We don't need bstart/bend if we're only getting deletions
+            if op not in ('equal', 'insert')) # Only get deletions
+        for entry in group # Flatten list
+    ]
 
-    if diff:
+    if deletions:
         send_email(os.environ['EMAIL_HOST'],
                    int(os.environ['EMAIL_PORT']),
                    os.environ['EMAIL_USER'],
                    os.environ['EMAIL_PASSWORD'],
                    os.environ['EMAIL_FROM'],
                    os.environ['EMAIL_TO'],
-                   pformat(diff),
+                   "Deleted bookings:\n" + '\n'.join(deletions), # Pre-formatting the email to keep send_email generic
                    'Updated booking details')
+
 
 def send_email(email_host, email_port, user, password, email_from, email_to, email_body, email_subject):
     _user, email_domain = email_from.split('@', 1)
@@ -170,13 +172,13 @@ def send_email(email_host, email_port, user, password, email_from, email_to, ema
     %s
     """) % (email_from, email_to, email_subject, email_body)
     try:
+        smtp = smtplib.SMTP_SSL if email_port == 465 else smtplib.SMTP
+        smtp_server = smtp(email_host, email_port)
+        smtp_server.ehlo()
+
         if email_port == 465:
-            smtp_server = smtplib.SMTP_SSL(email_host, email_port)
-        else:
-            smtp_server = smtplib.SMTP(email_host, email_port)
-        smtp_server.ehlo()        
-        if user:
             smtp_server.login(user, password)
+
         smtp_server.sendmail(email_from, email_to, email_text.encode('UTF-8'))
         smtp_server.close()
         print ("Email sent successfully!")
