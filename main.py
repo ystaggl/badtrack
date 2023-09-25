@@ -108,7 +108,6 @@ def check_date(store, date_to_check, cache_exists):
     #production: no caching
 
     if html is None:
-        print("html is None")
         d = date_to_check
         req = urllib.request.Request(
             f'https://pba.yepbooking.com.au/ajax/ajax.schema.php?day={d.day}&month={d.month}&year={d.year}&id_sport=1')
