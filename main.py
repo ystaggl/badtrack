@@ -103,7 +103,6 @@ def tag_to_dic(tag):
 
 def check_date(store, date_to_check):
     html = get_cache(get_cache_key(date_to_check))
-    html = None
 
     if html is None:
         d = date_to_check
@@ -134,7 +133,7 @@ def check_date(store, date_to_check):
     )
 
     booked_list = [
-        '{date} Court {court}: {title}'.format(date=date_to_check.strftime('%d/%m'), **attrs)
+        '{date} Court {court}: {title}'.format(date=date_to_check.strftime('%d/%m %A'), **attrs)
         for row in rows_of_dic
         for attrs in row
         if row
@@ -158,7 +157,7 @@ def check_date(store, date_to_check):
                    os.environ['EMAIL_FROM'],
                    os.environ['EMAIL_TO'],
                    "Deleted bookings:\n" + '\n'.join(deletions), # Pre-formatting the email to keep send_email generic
-                   'Updated booking details')
+                   str(len(deletions)) + " deletions on " + date_to_check.strftime('%A %d/%m')) 
 
 
 def send_email(email_host, email_port, user, password, email_from, email_to, email_body, email_subject):
@@ -170,7 +169,7 @@ def send_email(email_host, email_port, user, password, email_from, email_to, ema
     Subject: %s
 
     %s
-    """) % (email_from, email_to, email_subject, email_body)
+    """) % (email_from, email_to, email_subject, email_body) 
     try:
         smtp = smtplib.SMTP_SSL if email_port == 465 else smtplib.SMTP
         smtp_server = smtp(email_host, email_port)
