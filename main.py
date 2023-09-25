@@ -83,7 +83,7 @@ assert get_datetime(2023, 12, 33) == datetime(2024, 1, 2)
 
 def get_cache_key(d):
     return d.strftime('%Y-%m-%d')
-    return d.strftime('%Y-%m-%d_%H%M')
+    # return d.strftime('%Y-%m-%d_%H%M')
 
 def get_cache(key):
     cache_file_path = os.path.join(os.environ['CACHE_FOLDER'], key)
@@ -101,10 +101,14 @@ def set_cache(key, content):
 def tag_to_dic(tag):
     return dict(ATTR_RE.findall(tag.lstrip('<td').rstrip('>').strip()))
 
-def check_date(store, date_to_check):
+def check_date(store, date_to_check, cache_exists):
+
     html = get_cache(get_cache_key(date_to_check))
+    #development: enable caching
+    #production: no caching
 
     if html is None:
+        print("html is None")
         d = date_to_check
         req = urllib.request.Request(
             f'https://pba.yepbooking.com.au/ajax/ajax.schema.php?day={d.day}&month={d.month}&year={d.year}&id_sport=1')
@@ -116,8 +120,9 @@ def check_date(store, date_to_check):
             print(e)
             print('Checking of ' + date_to_check.strftime('%Y-%m-%d') + ' has been skipped')
             return
-
-        set_cache(get_cache_key(date_to_check), html)
+        if cache_exists:
+            set_cache(get_cache_key(date_to_check), html)
+            print("Webpage cached")
 
     cleaned_html = remove_unmatched_tags(remove_html_entities(html.decode()))
 
@@ -185,8 +190,10 @@ def send_email(email_host, email_port, user, password, email_from, email_to, ema
         print ("Something went wrong….",ex)
     return
 
-
 def run_loop(history_folder):
+    cache_file_path = os.path.join(os.environ['CACHE_FOLDER'])
+    cache_exists = os.path.exists(cache_file_path)
+
     while True:
         for i in range(7):
             wait_check_seconds = random.randint(3, 30) if i > 0 else 0
@@ -196,7 +203,7 @@ def run_loop(history_folder):
             date = get_datetime(now.year, now.month, now.day + i, now.hour, now.minute)
             print('{2} Check for {1} (waited {0}s)' .format(wait_check_seconds, date.strftime('%a %d/%m'), now.strftime('%H:%M')))
             store = store_init(history_folder, now, date)
-            check_date(store, date)
+            check_date(store, date, cache_exists)
 
         minutes = lambda i: i * 60
         wait_seconds = random.randint(minutes(10), minutes(30))
