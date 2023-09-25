@@ -218,6 +218,8 @@ def run_loop(history_folder):
         # https://stackoverflow.com/questions/1335507/keyboard-input-with-timeout
         #select.select([sys.stdin], [], [], wait_seconds)
 
+        time.sleep(wait_seconds)
+
 if __name__ == '__main__':
     try:
         run_loop(os.environ['HISTORY_FOLDER'])
