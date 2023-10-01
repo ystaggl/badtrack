@@ -168,7 +168,7 @@ def send_email(email_host, email_port, user, password, email_from, email_to, ema
     _user, email_domain = email_from.split('@', 1)
     email_text = inspect.cleandoc(f"""\
     Message-ID: <{uuid4()}@{email_domain}>
-    From: Python SMTP Sender <%s>
+    From: Badminton Bookings <%s>
     To: %s
     Subject: %s
 
